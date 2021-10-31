@@ -105,8 +105,47 @@ ul {
   padding: 10px;
   border: 1px solid rgba(224, 224, 224, 1) !important;
 }
-td.MuiTableCell-body.isNotBooked:hover{
+
+td.MuiTableCell-body.status_hold_auther:hover{
   cursor: pointer;
   /* background-color: rgb(238, 235, 235); */
   box-shadow: 0 2px 11px -4px rgb(115 103 240 / 65%);
+}
+
+td.MuiTableCell-body.status_hold_auther{
+  color: #fd7474;
+  border-color: #fb6767;
+  border: 1px solid #ffb3b3!important;
+  border-top: 1.2px solid #ffb3b3 !important;
+  background-color: #ff959566;
+}
+
+td.MuiTableCell-body.status_hold_own{
+  font-weight: bolder;
+  color: #ff0000;
+  border-color: #ff0f0f;
+  border: 2px solid #ffb3b3!important;
+  border-top: 2px solid #ffb3b3 !important;
+  background-color: #ff6a6a66;
+}
+
+td.MuiTableCell-body{
+  background-color: #f5f4ff;
+  font-size: small;
+  line-height: 0.6rem;
+}
+
+td.MuiTableCell-body.status_hold_free {
+  background-color: #f5f4ff;
+}
+
+/* td.MuiTableCell-body:not(.status_hold_auther){
+  color: #bd2525;
+  border-color: #fb6767;
+  border: 1px solid #ffb3b3!important;
+  border-top: 1.2px solid #ffb3b3 !important;
+} */
+
+td.MuiTableCell-body.status_hold_auther p:first-child{
+  /* font-weight: bold; */
 }
