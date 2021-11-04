@@ -15,7 +15,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export default function DialogConfirm(props) {
     const { eventDialog = { open: false, data: { room_name: '', room_id: '', time_id: '', time_label: '' } }, onOk = () => { }, onClose = () => { }, content = '', } = props;
-    const { open, data={} } = eventDialog
+    const { open, data = {} } = eventDialog
     return (
         <div>
             <Dialog
@@ -27,9 +27,9 @@ export default function DialogConfirm(props) {
             >
                 <DialogTitle>{'ยืนยันการจอง'}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description" style={{  }}>
+                    <DialogContentText id="alert-dialog-slide-description" style={{}}>
                         {content || (<>
-                            <p>ห้อง <b>{data.room_name||''}</b> เวลา <b>{data.time_label|| ''}</b></p>
+                            <p>ห้อง <b>{data.room_name || ''}</b> เวลา <b>{data.time_label || ''}</b></p>
 
 
                         </>)}

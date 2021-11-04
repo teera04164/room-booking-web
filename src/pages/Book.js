@@ -7,9 +7,12 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
+import { GlobalContext } from '../contexts/globalContext';
 import { makeStyles } from '@mui/styles';
 import DialogConfirm from '../components/DialogConfirm';
-import { timeBookDefault, example_data } from '../mockdata'
+import { example_data } from '../mockdata'
+import api from '../API';
+import { toast, ToastContainer } from 'react-toastify';
 
 const useStyles = makeStyles({
     root: {
@@ -26,72 +29,75 @@ const useStyles = makeStyles({
 const curren_user_id = 'B5816435'
 
 const Book = () => {
-    const [dataBooking, setDataBooking] = React.useState(example_data)
+    const { setLoading } = React.useContext(GlobalContext)
+    const [dataBooking, setDataBooking] = React.useState([])
     const [eventDialog, setEventDialog] = React.useState({ open: false, data: {} })
+    const [timeBookDefault, setTimeBookDefault] = React.useState([])
 
     const classes = useStyles();
 
-    const bookClick = ({ room_name, room_id, time_id, time_label, room_type_id }) => {
-        setEventDialog({ open: true, data: { room_name, room_id, time_id, time_label, room_type_id } })
+
+    React.useEffect(() => {
+        initial()
+
+    }, [])
+
+    const initial = async () => {
+        const result = await api.getListTimeBooking()
+        const booking = await api.getBooking({ building_id: '6183fc7d7e115ccbf5f09328' })
+        console.log("🚀 ~ file: Book.js ~ line 45 ~ initial ~ booking", booking.data)
+        setTimeBookDefault(result.data)
+        setDataBooking(booking.data)
+        console.log("🚀 ~ file: Book.js ~ line 43 ~ initial ~ result", result)
+        setLoading(false)
+
+    }
+
+
+
+    const bookClick = (obj) => {
+        const { room_name, room_id, time_booking_id, time_label, room_type_id, building_id } = obj
+        console.log(obj)
+        setEventDialog({ open: true, data: { room_name, room_id, time_booking_id, time_label, room_type_id, building_id } })
 
 
     };
 
-    const handleOk = (data) => {
-        console.log("🚀 ~ file: Book.js ~ line 41 ~ handleOk ~ data", data)
-        const { room_name, room_id, time_id, time_label, room_type_id } = data
-        let newDataBooking = { ...dataBooking }
-        const { rooms } = newDataBooking
-        let newRooms = []
-        for (let index in rooms) {
-            const ele = rooms[index]
-            if (ele.room_type_id === room_type_id) {
-                const { all_room } = ele
-                let newAllRoom = []
-                for (let eachRoom of all_room) {
-                    if (eachRoom.room_id == room_id) {
-                        console.log('in push');
-                        newAllRoom.push({
-                            ...eachRoom,
-                            booking: [
-                                ...eachRoom.booking,
-                                {
-                                    room_type_id,
-                                    room_id,
-                                    user_id: curren_user_id,
-                                    time_booking_id: time_id,
-                                    date_booking: '31/10/2564'
-                                }
-                            ]
-                        })
+    const handleOk = async (data) => {
+        setLoading(true)
+        const { room_name, room_id, time_booking_id, time_label, room_type_id, building_id } = data
+        await api.saveBooking({
+            building_id,
+            room_type_id,
+            room_id,
+            time_booking_id
+        })
+        initial()
+        setEventDialog(false)
+        toast.success(`บันทึกสำเร็จ`, {
+            position: "top-center",
+            autoClose: 1500,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
 
-                    } else {
-                        newAllRoom.push(eachRoom)
-                        console.log('in else push');
-
-                    }
-                }
-                console.log("🚀 ~ file: Book.js ~ line 69 ~ handleOk ~ newAllRoom", newAllRoom)
-                newRooms.push({ ...ele, all_room: newAllRoom })
-            } else {
-                newRooms.push(ele)
-            }
-        }
-        console.log("🚀 ~ file: Book.js ~ line 71 ~ handleOk ~ newDataBooking", { ...newDataBooking, rooms: newRooms })
-        setDataBooking({ ...newDataBooking, rooms: newRooms })
-        setEventDialog({ open: false, data: {} })
     }
 
     return (
         <div className={classes.root} style={{ padding: '20px' }}>
+            <ToastContainer />
             <DialogConfirm
                 eventDialog={eventDialog}
                 onClose={() => setEventDialog(false)}
                 onOk={handleOk}
             />
             {
-                dataBooking.rooms.map(room => {
-                    const { all_room, room_type_name, room_type_id } = room
+                dataBooking.map(room => {
+                    const { rooms, room_type_name, _id: building_id } = room
+                    console.log("🚀 ~ file: Book.js ~ line 116 ~ Book ~ room", room)
                     return (
                         <>
                             <HeaderRoomType room_type_name={room_type_name} />
@@ -101,9 +107,9 @@ const Book = () => {
                                         timeBookDefault={timeBookDefault}
                                     />
                                     <BodyTable
-                                        all_room={all_room}
+                                        all_room={rooms}
                                         timeBookDefault={timeBookDefault}
-                                        room_type_id={room_type_id}
+                                        building_id={building_id}
                                         bookClick={bookClick}
                                     />
 
@@ -127,20 +133,20 @@ const HeaderTable = ({ timeBookDefault }) => {
             <TableCell>ห้อง/เวลา</TableCell>
             {timeBookDefault.map((ele) => (
                 <TableCell
-                    key={`default-book-${ele.id}`}
+                    key={`default-book-${ele._id}`}
                     align="center"
                 >
-                    {ele.label}
+                    {ele.time_booking_name}
                 </TableCell>
             ))}
         </TableRow>
     </TableHead>
 }
 
-const BodyTable = ({ all_room, bookClick, room_type_id }) => {
+const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id }) => {
     return <TableBody>
         {all_room.map((ele) => {
-            const { room_name, room_id, booking } = ele;
+            const { room_name, _id: room_id, booking, room_type_id } = ele;
             return (
                 <TableRow key={`xxx-${room_id}`}>
                     <TableCell
@@ -151,8 +157,8 @@ const BodyTable = ({ all_room, bookClick, room_type_id }) => {
                         {room_name}
                     </TableCell>
                     {timeBookDefault.map((echTime) => {
-                        const { id: time_id, label: time_label } = echTime;
-                        const foundBooked = booking.find(eachBook => eachBook.time_booking_id == time_id)
+                        const { _id: time_booking_id, time_booking_name: time_label } = echTime;
+                        const foundBooked = booking.find(eachBook => eachBook.time_booking_id == time_booking_id)
                         let isBooked = false
                         let isOwnBook = false
                         if (foundBooked) {
@@ -169,9 +175,10 @@ const BodyTable = ({ all_room, bookClick, room_type_id }) => {
                                         bookClick({
                                             room_name,
                                             room_id,
-                                            time_id,
+                                            time_booking_id,
                                             time_label,
-                                            room_type_id
+                                            room_type_id,
+                                            building_id
                                         });
                                     }
                                 }}
@@ -183,8 +190,8 @@ const BodyTable = ({ all_room, bookClick, room_type_id }) => {
                                 {
                                     isBooked ? (
                                         isOwnBook ? <span>
-                                            <p><b style={{color: '#5e1bff'}}>{foundBooked.user_id}</b></p>
-                                            <p style={{color: '#5e1bff'}}>ยกเลิก</p>
+                                            <p><b style={{ color: '#5e1bff' }}>{foundBooked.user_id}</b></p>
+                                            <p style={{ color: '#5e1bff' }}>ยกเลิก</p>
                                             <p>{room_name}</p>
                                             <p>{time_label}</p>
                                         </span> : <span>
@@ -200,20 +207,6 @@ const BodyTable = ({ all_room, bookClick, room_type_id }) => {
                                         </span>
                                     )
                                 }
-                                {/* {isBooked ? (
-                                    
-                                    <span>
-                                        <p>ห้องไม่ว่าง</p>
-                                        <p>{room_name}</p>
-                                        <p>{time_label}</p>
-                                    </span>
-                                ) : (
-                                    <span>
-                                        <p>ห้องว่าง</p>
-                                        <p>{room_name}</p>
-                                        <p>{time_label}</p>
-                                    </span>
-                                )} */}
                             </TableCell>
                         );
                     })}

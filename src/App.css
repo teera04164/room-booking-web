@@ -106,8 +106,7 @@ ul {
   border: 1px solid rgba(224, 224, 224, 1) !important;
 }
 
-td.MuiTableCell-body.status_hold_auther:hover{
-  cursor: pointer;
+td.MuiTableCell-body.status_hold_own:hover, .status_hold_free:hover {
   /* background-color: rgb(238, 235, 235); */
   box-shadow: 0 2px 11px -4px rgb(115 103 240 / 65%);
 }
@@ -137,6 +136,7 @@ td.MuiTableCell-body{
 
 td.MuiTableCell-body.status_hold_free {
   background-color: #f5f4ff;
+  cursor: pointer;
 }
 
 /* td.MuiTableCell-body:not(.status_hold_auther){
