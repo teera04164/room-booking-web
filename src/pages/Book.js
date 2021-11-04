@@ -43,6 +43,7 @@ const Book = () => {
     }, [])
 
     const initial = async () => {
+        setLoading(true)
         const result = await api.getListTimeBooking()
         const booking = await api.getBooking({ building_id: '6183fc7d7e115ccbf5f09328' })
         console.log("🚀 ~ file: Book.js ~ line 45 ~ initial ~ booking", booking.data)
@@ -72,7 +73,7 @@ const Book = () => {
             room_id,
             time_booking_id
         })
-        initial()
+        await initial()
         setEventDialog(false)
         toast.success(`บันทึกสำเร็จ`, {
             position: "top-center",
