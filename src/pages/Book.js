@@ -65,6 +65,7 @@ const Book = () => {
     };
 
     const handleOk = async (data) => {
+        setEventDialog(false)
         setLoading(true)
         const { room_name, room_id, time_booking_id, time_label, room_type_id, building_id } = data
         await api.saveBooking({
@@ -74,7 +75,6 @@ const Book = () => {
             time_booking_id
         })
         await initial()
-        setEventDialog(false)
         toast.success(`บันทึกสำเร็จ`, {
             position: "top-center",
             autoClose: 1500,
