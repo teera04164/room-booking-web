@@ -74,7 +74,6 @@ const Book = () => {
             room_id,
             time_booking_id
         })
-        await initial()
         toast.success(`บันทึกสำเร็จ`, {
             position: "top-center",
             autoClose: 1500,
@@ -84,6 +83,7 @@ const Book = () => {
             draggable: true,
             progress: undefined,
         });
+        await initial()
 
     }
 
