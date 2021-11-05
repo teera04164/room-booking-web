@@ -77,8 +77,6 @@ function Login() {
             history.push('/book')
 
         } catch (err) {
-        }
-        finally {
             setLoading(false)
         }
 
