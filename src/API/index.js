@@ -64,20 +64,25 @@ const api = {
         const { data } = await axios.get(`${baseUrl}/time-booking`, param);
         return data
     },
+    getListTBuilding: async (param) => {
+        const { data } = await axios.get(`${baseUrl}/building`, param);
+        return data
+    },
     getBooking: async (params) => {
         const { data } = await axios.get(`${baseUrl}/booking`, { params });
         return data
     },
-    saveBooking: async (body) => {
-        const { data } = await axios.post(`${baseUrl}/booking`, body);
+    saveBooking: async (params) => {
+        const { data } = await axios.post(`${baseUrl}/booking`, params);
         return data
     },
-    login: async (body) => {
-        const { data } = await axios.post(`${baseUrl}/auth/login`, body)
-        return data;
+    deleteBooking: async (params) => {
+        const { data } = await axios.delete(`${baseUrl}/booking`, { params });
+        return data
     },
-    adminEditCourse: (body) => {
-        return axios.put(`${baseUrl}/admin/courses`, body);
+    login: async (params) => {
+        const { data } = await axios.post(`${baseUrl}/auth/login`, params)
+        return data;
     },
     getProtected: () => {
         return axios.get(`${baseUrl}/protected_resource`);

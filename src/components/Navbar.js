@@ -15,7 +15,7 @@ const menus = [
         path: '/book',
     },
     {
-        label: 'แนวปฏิบัติการใช้บริการ',
+        label: 'รายการจอง',
         icon: BeenhereOutlinedIcon,
         path: '/user',
     },
