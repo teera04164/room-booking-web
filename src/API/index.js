@@ -1,22 +1,22 @@
 import axios from "axios";
-// import { toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5002' : process.env.REACT_APP_BACKEND;
 
-// axios.interceptors.request.use(
-//     (config) => {
-//         const userInfo = localStorage.getItem("userInfo");
-//         if (userInfo) {
-//             let obj = JSON.parse(userInfo)
-//             config.headers["token"] = obj.token;
-//         }
+axios.interceptors.request.use(
+    (config) => {
+        const userInfo = localStorage.getItem("userInfo");
+        if (userInfo) {
+            let obj = JSON.parse(userInfo)
+            config.headers['Authorization'] = `bearer ${obj.token?.accessToken}`
+        }
 
-//         return config;
-//     },
-//     (error) => {
-//         Promise.reject(error);
-//     }
-// );
+        return config;
+    },
+    (error) => {
+        Promise.reject(error);
+    }
+);
 
 // axios.interceptors.response.use(
 //     (response) => {
@@ -38,7 +38,7 @@ const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5002'
 //                     }
 //                 });
 //         }
-//         if (error.response && error.response.data) {
+//         if (error?.response?.data) {
 //             handle403(error)
 //         }
 //         return Promise.reject(error);
@@ -60,14 +60,21 @@ const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5002'
 // }
 
 const api = {
-    getListTimeBooking: (param) => {
-        return axios.get(`${baseUrl}/time-booking`, param);
+    getListTimeBooking: async (param) => {
+        const { data } = await axios.get(`${baseUrl}/time-booking`, param);
+        return data
     },
-    getBooking: (params) => {
-        return axios.get(`${baseUrl}/booking`, { params });
+    getBooking: async (params) => {
+        const { data } = await axios.get(`${baseUrl}/booking`, { params });
+        return data
     },
-    saveBooking: (body) => {
-        return axios.post(`${baseUrl}/booking`, body);
+    saveBooking: async (body) => {
+        const { data } = await axios.post(`${baseUrl}/booking`, body);
+        return data
+    },
+    login: async (body) => {
+        const { data } = await axios.post(`${baseUrl}/auth/login`, body)
+        return data;
     },
     adminEditCourse: (body) => {
         return axios.put(`${baseUrl}/admin/courses`, body);

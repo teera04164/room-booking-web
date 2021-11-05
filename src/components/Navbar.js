@@ -6,6 +6,8 @@ import BookOutlinedIcon from '@mui/icons-material/BookOutlined';
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import { GlobalContext } from '../contexts/globalContext';
+
 const menus = [
     {
         label: 'จองห้อง',
@@ -32,36 +34,35 @@ function Navbar() {
     const [activeMenu, setActiveMenu] = React.useState(
         window.location.pathname
     );
-    let history = useHistory();
-    let match = useRouteMatch('/login');
+    const history = useHistory();
+    const { userInfo } = React.useContext(GlobalContext)
+
     const onClickMenu = (path) => {
+        if (path === '/login') {
+            localStorage.clear()
+        }
         history.push(path);
         setActiveMenu(path);
-        if (path === 'login') {
-            window.location.reload();
-        }
     };
     return (
         <div>
             <Grid
                 container
-                justifyContent='space-between'
+                justifyContent="space-between"
                 style={{
                     height: '70px',
                     backgroundColor: 'white',
                     boxShadow: '0 4px 20px 0 rgba(0, 0, 0, .05)',
                 }}
             >
-                    
                 <ul className="menu">
                     {menus.map((ele) => {
                         const { label, icon: Icon, path } = ele;
                         console.log(activeMenu, path);
                         return (
                             <li
-                                className={`${
-                                    activeMenu === path && 'active'
-                                } `}
+                                className={`${activeMenu === path && 'active'
+                                    } `}
                                 onClick={() => onClickMenu(path)}
                             >
                                 <Icon />
@@ -71,9 +72,16 @@ function Navbar() {
                     })}
                 </ul>
                 <ul className="menu">
-                    <li onClick={() => onClickMenu('/login')}>
-                        <LogoutOutlinedIcon />
-                        ออกจากระบบ
+                    <li>
+                        <span style={{ marginRight: '5px', cursor: 'default' }}>
+                            <span style={{ fontSize: 'small' }}>
+                                ยินดีต้องรับ..
+                            </span>
+                            <span style={{ fontWeight: 'bold', color: '#001685' }}>{' ' + userInfo.username}</span>
+                        </span>
+                        <LogoutOutlinedIcon
+                            onClick={() => onClickMenu('/login')}
+                        />
                     </li>
                 </ul>
             </Grid>

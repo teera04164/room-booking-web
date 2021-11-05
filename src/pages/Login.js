@@ -21,6 +21,14 @@ import InputBase from '@mui/material/InputBase';
 
 import { useHistory } from 'react-router-dom';
 import { GlobalContext } from '../contexts/globalContext';
+import api from '../API';
+import { toast, ToastContainer } from 'react-toastify';
+
+
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+
+import Fab from '@mui/material/Fab';
 
 const wait = (timeToDelay) => new Promise((resolve) => setTimeout(resolve, timeToDelay));
 
@@ -40,22 +48,40 @@ const CssInput = styled(Input)({
 
 function Login() {
     const [values, setValues] = React.useState({
-        amount: '',
-        password: '',
-        weight: '',
-        weightRange: '',
+        username: 'demo1',
+        password: '123',
         showPassword: false,
     });
 
-    const { setLoading } = React.useContext(GlobalContext) 
+    const { setLoading, setUserInfo } = React.useContext(GlobalContext)
 
     let history = useHistory();
 
-    async function handleClick() {
-        setLoading(true)
-        await wait(3000)
-        history.push('/book');
-        setLoading(false)
+    async function onClickLogin() {
+        try {
+            setLoading(true)
+            const { username, password } = values
+            const result = await api.login({ username, password })
+            console.log("🚀 ~ file: Login.js ~ line 60 ~ onClickLogin ~ result", result)
+            localStorage.setItem('userInfo', JSON.stringify(result))
+            setUserInfo(result)
+            // toast.success(`เข้าสู่ระบบสำเร็จ`, {
+            //     position: "top-center",
+            //     autoClose: 1500,
+            //     hideProgressBar: true,
+            //     closeOnClick: true,
+            //     pauseOnHover: true,
+            //     draggable: true,
+            //     progress: undefined,
+            // });
+            history.push('/book')
+
+        } catch (err) {
+        }
+        finally {
+            setLoading(false)
+        }
+
     }
 
     const handleChange = (prop) => (event) => {
@@ -129,6 +155,8 @@ function Login() {
                             </Grid>
                             <Grid item xs={12}>
                                 <CssInput
+                                    value={values.username}
+                                    onChange={handleChange('username')}
                                     style={{ width: '100%', marginTop: '5px' }}
                                     disableUnderline
                                     placeholder="เช่น b63xxxxxxxx หรือ regxxx"
@@ -182,7 +210,14 @@ function Login() {
                                     label="Password"
                                 />
                             </Grid>
-                            <Button className="btn-login" variant="contained" onClick={handleClick}>
+
+                            <Stack direction="row" spacing={1} style={{ marginTop: '10px' }}>
+                                <Chip label="demo1" variant="outlined" onClick={() => { setValues(prev => ({ ...prev, username: 'demo1' })) }} />
+                                <Chip label="demo2" variant="outlined" onClick={() => { setValues(prev => ({ ...prev, username: 'demo2' })) }} />
+                                <Chip label="admin" variant="outlined" onClick={() => { setValues(prev => ({ ...prev, username: 'admin' })) }} />
+                            </Stack>
+
+                            <Button className="btn-login" variant="contained" onClick={onClickLogin}>
                                 เข้าสู่ระบบ
                             </Button>
                         </div>

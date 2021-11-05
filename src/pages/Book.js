@@ -12,7 +12,6 @@ import { makeStyles } from '@mui/styles';
 import DialogConfirm from '../components/DialogConfirm';
 import { example_data } from '../mockdata'
 import api from '../API';
-import { toast, ToastContainer } from 'react-toastify';
 
 const useStyles = makeStyles({
     root: {
@@ -26,10 +25,18 @@ const useStyles = makeStyles({
     },
 });
 
-const curren_user_id = 'B5816435'
+
+const userInfo = {
+    _id: '6183fc7d7e115ccbf5f02556',
+    user_code: 'B587777',
+    name: 'สุชาติ ชมกลิ่น',
+    createdAt: '2021-11-05T02:36:55.214Z',
+    updatedAt: '2021-11-05T02:36:55.214Z',
+};
+
 
 const Book = () => {
-    const { setLoading } = React.useContext(GlobalContext)
+    const { setLoading, userInfo } = React.useContext(GlobalContext)
     const [dataBooking, setDataBooking] = React.useState([])
     const [eventDialog, setEventDialog] = React.useState({ open: false, data: {} })
     const [timeBookDefault, setTimeBookDefault] = React.useState([])
@@ -46,9 +53,9 @@ const Book = () => {
         setLoading(true)
         const result = await api.getListTimeBooking()
         const booking = await api.getBooking({ building_id: '6183fc7d7e115ccbf5f09328' })
-        console.log("🚀 ~ file: Book.js ~ line 45 ~ initial ~ booking", booking.data)
-        setTimeBookDefault(result.data)
-        setDataBooking(booking.data)
+        console.log("🚀 ~ file: Book.js ~ line 45 ~ initial ~ booking", booking)
+        setTimeBookDefault(result)
+        setDataBooking(booking)
         console.log("🚀 ~ file: Book.js ~ line 43 ~ initial ~ result", result)
         setLoading(false)
 
@@ -72,24 +79,15 @@ const Book = () => {
             building_id,
             room_type_id,
             room_id,
-            time_booking_id
+            time_booking_id,
+            user_id: userInfo._id
         })
-        toast.success(`บันทึกสำเร็จ`, {
-            position: "top-center",
-            autoClose: 1500,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-        });
         await initial()
 
     }
 
     return (
         <div className={classes.root} style={{ padding: '20px' }}>
-            <ToastContainer />
             <DialogConfirm
                 eventDialog={eventDialog}
                 onClose={() => setEventDialog(false)}
@@ -98,7 +96,6 @@ const Book = () => {
             {
                 dataBooking.map(room => {
                     const { rooms, room_type_name, _id: building_id } = room
-                    console.log("🚀 ~ file: Book.js ~ line 116 ~ Book ~ room", room)
                     return (
                         <>
                             <HeaderRoomType room_type_name={room_type_name} />
@@ -108,6 +105,7 @@ const Book = () => {
                                         timeBookDefault={timeBookDefault}
                                     />
                                     <BodyTable
+                                        userInfo={userInfo}
                                         all_room={rooms}
                                         timeBookDefault={timeBookDefault}
                                         building_id={building_id}
@@ -144,7 +142,7 @@ const HeaderTable = ({ timeBookDefault }) => {
     </TableHead>
 }
 
-const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id }) => {
+const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo }) => {
     return <TableBody>
         {all_room.map((ele) => {
             const { room_name, _id: room_id, booking, room_type_id } = ele;
@@ -164,7 +162,7 @@ const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id }) => {
                         let isOwnBook = false
                         if (foundBooked) {
                             isBooked = true
-                            if (foundBooked.user_id === curren_user_id) {
+                            if (foundBooked.user_id === userInfo._id) {
                                 isOwnBook = true
                             }
                         }
@@ -191,7 +189,7 @@ const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id }) => {
                                 {
                                     isBooked ? (
                                         isOwnBook ? <span>
-                                            <p><b style={{ color: '#5e1bff' }}>{foundBooked.user_id}</b></p>
+                                            <p><b style={{ color: '#5e1bff' }}>{userInfo.user_code}</b></p>
                                             <p style={{ color: '#5e1bff' }}>ยกเลิก</p>
                                             <p>{room_name}</p>
                                             <p>{time_label}</p>

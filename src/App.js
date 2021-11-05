@@ -7,10 +7,13 @@ import Navbar from './components/Navbar';
 import { textAlign } from '@mui/system';
 import Loading from './components/Loading';
 import { GlobalProvider } from './contexts/globalContext';
+import { ToastContainer } from 'react-toastify';
+
 
 function App() {
     return (
         <div>
+            <ToastContainer />
             <Router>
                 <GlobalProvider>
                     <Loading />
