@@ -1,20 +1,19 @@
-import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import React, { useContext, useState, useEffect } from 'react'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Paper from '@mui/material/Paper'
+import { makeStyles } from '@mui/styles'
 
-import { GlobalContext } from '../contexts/globalContext';
-import { makeStyles } from '@mui/styles';
-import DialogConfirm from '../components/DialogConfirm';
-import api from '../API';
-import SelectOption from '../components/SelectOption';
-import { Grid } from '@mui/material';
-import DatePicker from '../components/DatePicker';
-import UserDetail from '../components/UserDetail';
+import api from '../API'
+import { GlobalContext } from '../contexts/globalContext'
+import DialogConfirm from '../components/DialogConfirm'
+import SelectOption from '../components/SelectOption'
+import DatePicker from '../components/DatePicker'
+import UserDetail from '../components/UserDetail'
 
 const useStyles = makeStyles({
     root: {
@@ -26,33 +25,37 @@ const useStyles = makeStyles({
             borderLeft: '1px solid rgba(224, 224, 224, 1)',
         },
     },
-});
-
-const userInfo = {
-    _id: '6183fc7d7e115ccbf5f02556',
-    user_code: 'B587777',
-    name: 'สุชาติ ชมกลิ่น',
-    createdAt: '2021-11-05T02:36:55.214Z',
-    updatedAt: '2021-11-05T02:36:55.214Z',
-};
+})
 
 const Book = () => {
-    const classes = useStyles();
-    const { setLoading, userInfo } = React.useContext(GlobalContext);
-    const [dataBooking, setDataBooking] = React.useState([]);
-    const [eventDialog, setEventDialog] = React.useState({
-        open: false,
-        data: {},
-    });
-    const [timeBookDefault, setTimeBookDefault] = React.useState([]);
-    const [buildingList, setBuildingList] = React.useState([]);
-    const [selectedDate, setSelectedDate] = React.useState(new Date);
-    const [selectedBuilding, setSelectBuilding] = React.useState('');
+    const classes = useStyles()
+    const { setLoading, userInfo } = useContext(GlobalContext)
+    const [dataBooking, setDataBooking] = useState([])
+    const [eventDialog, setEventDialog] = useState({ open: false, data: {}, })
+    const [timeBookDefault, setTimeBookDefault] = useState([])
+    const [buildingList, setBuildingList] = useState([])
+    const [selectedDate, setSelectedDate] = useState(new Date())
+    const [selectedBuilding, setSelectBuilding] = useState('')
 
+    useEffect(() => {
+        initial()
+    }, [])
 
-    React.useEffect(() => {
-        initial();
-    }, []);
+    const initial = async () => {
+        setLoading(true)
+        const building = await api.getListTBuilding()
+        const result = await api.getListTimeBooking()
+        const booking = await api.getBooking({ ...building[0] })
+        const optionBuilding = building.map((ele) => ({
+            value: ele.building_id,
+            label: ele.building_name,
+        }))
+        setSelectBuilding(building[0].building_id)
+        setTimeBookDefault(result)
+        setDataBooking(booking)
+        setBuildingList(optionBuilding)
+        setLoading(false)
+    }
 
     const handleChangeBuilding = async ({ value: buildId }) => {
         setSelectBuilding(buildId)
@@ -66,42 +69,28 @@ const Book = () => {
 
     const getBooking = async (building_id, selected_date) => {
         setLoading(true)
-        const booking = await api.getBooking({ building_id, selected_date });
-        setDataBooking(booking);
+        const booking = await api.getBooking({ building_id, selected_date })
+        setDataBooking(booking)
         setLoading(false)
     }
 
-    const initial = async () => {
-        setLoading(true);
-        const building = await api.getListTBuilding();
-        const result = await api.getListTimeBooking();
-        const booking = await api.getBooking({ ...building[0] });
-        const optionBuilding = building.map((ele) => ({
-            value: ele.building_id,
-            label: ele.building_name,
-        }));
-        setSelectBuilding(building[0].building_id)
-        setTimeBookDefault(result);
-        setDataBooking(booking);
-        setBuildingList(optionBuilding);
-        setLoading(false);
-    };
+
 
     const bookClick = (data) => {
-        const { isOwnBook } = data;
-        let label = 'ยืนยันการจอง';
+        const { isOwnBook } = data
+        let label = 'ยืนยันการจอง'
         if (isOwnBook) {
-            label = 'ยืนยันการยกเลิก';
+            label = 'ยืนยันการยกเลิก'
         }
-        setEventDialog({ open: true, label, data });
-    };
+        setEventDialog({ open: true, label, data })
+    }
 
     const handleOk = async (data) => {
-        setEventDialog(false);
-        setLoading(true);
-        const { room_id, time_booking_id, room_type_id, building_id, isOwnBook, booking_id, } = data;
+        setEventDialog(false)
+        setLoading(true)
+        const { room_id, time_booking_id, room_type_id, building_id, isOwnBook, booking_id, } = data
         if (isOwnBook) {
-            await api.deleteBooking({ booking_id });
+            await api.deleteBooking({ booking_id })
         } else {
             await api.saveBooking({
                 building_id,
@@ -109,11 +98,11 @@ const Book = () => {
                 room_id,
                 time_booking_id,
                 user_id: userInfo._id,
-                selected_date: selectedDate
-            });
+                selected_date: selectedDate,
+            })
         }
-        await getBooking(selectedBuilding, selectedDate);
-    };
+        await getBooking(selectedBuilding, selectedDate)
+    }
 
     return (
         <div className={classes.root} style={{ padding: '20px' }}>
@@ -122,14 +111,19 @@ const Book = () => {
                 onClose={() => setEventDialog(false)}
                 onOk={handleOk}
             />
-            <DatePicker onChange={handleChangDate} />
-            <SelectOption onChange={handleChangeBuilding} options={buildingList} />
+            <DatePicker
+                onChange={handleChangDate}
+            />
+            <SelectOption
+                onChange={handleChangeBuilding}
+                options={buildingList}
+            />
             <UserDetail />
 
             {dataBooking.map((room) => {
-                const { rooms, room_type_name, _id: building_id } = room;
+                const { rooms, room_type_name, _id: building_id } = room
                 return (
-                    <>
+                    <div key={building_id}>
                         <HeaderRoomType room_type_name={room_type_name} />
                         <TableContainer component={Paper}>
                             <Table sx={{ minWidth: 650 }} size="small">
@@ -145,14 +139,14 @@ const Book = () => {
                                 />
                             </Table>
                         </TableContainer>
-                    </>
-                );
+                    </div>
+                )
             })}
         </div>
-    );
-};
+    )
+}
 
-const HeaderRoomType = ({ room_type_name }) => <h3>{room_type_name} </h3>;
+const HeaderRoomType = ({ room_type_name }) => <h3>{room_type_name} </h3>
 
 const HeaderTable = ({ timeBookDefault }) => {
     return (
@@ -166,45 +160,34 @@ const HeaderTable = ({ timeBookDefault }) => {
                 ))}
             </TableRow>
         </TableHead>
-    );
-};
+    )
+}
 
-const BodyTable = ({
-    timeBookDefault,
-    all_room,
-    bookClick,
-    building_id,
-    userInfo,
-}) => {
+const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo, }) => {
     return (
         <TableBody>
             {all_room.map((ele) => {
-                const { room_name, _id: room_id, booking, room_type_id } = ele;
+                const { room_name, _id: room_id, booking, room_type_id } = ele
                 return (
-                    <TableRow key={`xxx-${room_id}`}>
+                    <TableRow key={`body-table-${room_id}`}>
                         <TableCell align="center" component="th" scope="row">
                             {room_name}
                         </TableCell>
                         {timeBookDefault.map((echTime) => {
-                            const {
-                                _id: time_booking_id,
-                                time_booking_name: time_label,
-                            } = echTime;
-                            const foundBooked = booking.find(
-                                (eachBook) =>
-                                    eachBook.time_booking_id == time_booking_id
-                            );
-                            let isBooked = false;
-                            let isOwnBook = false;
+                            const { _id: time_booking_id, time_booking_name: time_label, } = echTime
+                            const foundBooked = booking.find((eachBook) => eachBook.time_booking_id == time_booking_id)
+                            let isBooked = false
+                            let isOwnBook = false
                             if (foundBooked) {
-                                isBooked = true;
+                                isBooked = true
                                 if (foundBooked.user_id === userInfo._id) {
-                                    isOwnBook = true;
+                                    isOwnBook = true
                                 }
                             }
 
                             return (
                                 <TableCell
+                                    key={`booking-${room_id}-${time_booking_id}`}
                                     onClick={() => {
                                         if (!foundBooked || isOwnBook) {
                                             bookClick({
@@ -216,7 +199,7 @@ const BodyTable = ({
                                                 building_id,
                                                 isOwnBook,
                                                 booking_id: foundBooked?._id,
-                                            });
+                                            })
                                         }
                                     }}
                                     align="center"
@@ -229,43 +212,39 @@ const BodyTable = ({
                                 >
                                     {isBooked ? (
                                         isOwnBook ? (
-                                            <span>
-                                                <p>
-                                                    <b
-                                                        style={{
-                                                            color: '#5e1bff',
-                                                        }}
-                                                    >
+                                            <>
+                                                <b style={{ color: '#5e1bff', }} >
+                                                    <p>
                                                         {userInfo.user_code}
-                                                    </b>
-                                                </p>
+                                                    </p>
+                                                </b>
                                                 <p style={{ color: '#5e1bff' }}>
                                                     ยกเลิก
                                                 </p>
                                                 <p>{room_name}</p>
                                                 <p>{time_label}</p>
-                                            </span>
+                                            </>
                                         ) : (
-                                            <span>
+                                            <>
                                                 <p>ห้องไม่ว่าง</p>
                                                 <p>{room_name}</p>
                                                 <p>{time_label}</p>
-                                            </span>
+                                            </>
                                         )
                                     ) : (
-                                        <span>
+                                        <>
                                             <p>ห้องว่าง</p>
                                             <p>{room_name}</p>
                                             <p>{time_label}</p>
-                                        </span>
+                                        </>
                                     )}
                                 </TableCell>
-                            );
+                            )
                         })}
                     </TableRow>
-                );
+                )
             })}
         </TableBody>
-    );
-};
-export default Book;
+    )
+}
+export default Book

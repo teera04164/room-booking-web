@@ -1,15 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, createContext } from 'react';
 import { useHistory } from "react-router-dom";
-// first we will make a new context
-const GlobalContext = React.createContext();
-const initialUser = { name: "John", image: 'images/person.jpg', role: '', isLogin: false, token: '' }
-// Then create a provider Component
+
+const GlobalContext = createContext();
+
 const GlobalProvider = (props) => {
     const history = useHistory()
-    const [loading, setLoading] = React.useState(false);
-    const [userInfo, setUserInfo] = React.useState({});
+    const [loading, setLoading] = useState(false);
+    const [userInfo, setUserInfo] = useState({});
 
-    React.useEffect(() => {
+    useEffect(() => {
         initial()
     }, [])
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Grid } from '@mui/material';
 import { GlobalContext } from '../contexts/globalContext';
+
 function UserDetail() {
     const { userInfo } = React.useContext(GlobalContext);
     return (

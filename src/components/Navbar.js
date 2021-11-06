@@ -58,11 +58,10 @@ function Navbar() {
                 <ul className="menu">
                     {menus.map((ele) => {
                         const { label, icon: Icon, path } = ele;
-                        console.log(activeMenu, path);
                         return (
                             <li
-                                className={`${activeMenu === path && 'active'
-                                    } `}
+                                key={`navbar-${path}`}
+                                className={`${activeMenu === path && 'active'} `}
                                 onClick={() => onClickMenu(path)}
                             >
                                 <Icon />
