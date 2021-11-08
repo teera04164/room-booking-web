@@ -7,6 +7,7 @@ import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { GlobalContext } from '../contexts/globalContext';
+import api from '../API';
 
 const menus = [
     {
@@ -37,8 +38,10 @@ function Navbar() {
     const history = useHistory();
     const { userInfo } = React.useContext(GlobalContext)
 
-    const onClickMenu = (path) => {
+    const onClickMenu = async (path) => {
         if (path === '/login') {
+            const { token: { refreshToken } } = userInfo
+            await api.logOut({ refreshToken })
             localStorage.clear()
         }
         history.push(path);

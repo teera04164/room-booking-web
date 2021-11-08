@@ -42,18 +42,22 @@ const Book = () => {
     }, [])
 
     const initial = async () => {
-        setLoading(true)
-        const [building, timeBooking] = await Promise.all([api.getListTBuilding(), api.getListTimeBooking()])
-        const booking = await api.getBooking({ ...building[0] })
-        const optionBuilding = building.map((ele) => ({
-            value: ele.building_id,
-            label: ele.building_name,
-        }))
-        setSelectBuilding(building[0].building_id)
-        setTimeBookDefault(timeBooking)
-        setDataBooking(booking)
-        setBuildingList(optionBuilding)
-        setLoading(false)
+        try {
+            setLoading(true)
+            const [building, timeBooking] = await Promise.all([api.getListTBuilding(), api.getListTimeBooking()])
+            const booking = await api.getBooking({ ...building[0] })
+            const optionBuilding = building.map((ele) => ({
+                value: ele.building_id,
+                label: ele.building_name,
+            }))
+            setSelectBuilding(building[0].building_id)
+            setTimeBookDefault(timeBooking)
+            setDataBooking(booking)
+            setBuildingList(optionBuilding)
+            setLoading(false)
+        } catch (err) {
+            setLoading(false)
+        }
     }
 
     const handleChangeBuilding = async ({ value: buildId }) => {

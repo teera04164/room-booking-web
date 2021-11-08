@@ -54,14 +54,19 @@ axios.interceptors.response.use(
 const handle403 = (error) => {
     // const { RESULT_STATUS, RESULT_MESSAGE } = error.response.data
     toast.error(`session expire please login again!!`, {
-        position: "top-center",
+        position: 'top-center',
         autoClose: 5000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-    });
+    })
+
+    setTimeout(() => {
+        window.location.replace('/login')
+    }, 5000);
+
 }
 
 const api = {
@@ -89,8 +94,9 @@ const api = {
         const { data } = await axios.post(`${baseUrl}/auth/login`, params)
         return data;
     },
-    getProtected: () => {
-        return axios.get(`${baseUrl}/protected_resource`);
+    logOut: async (params) => {
+        const { data } = await axios.post(`${baseUrl}/auth/logout`, params)
+        return data;
     },
 };
 
