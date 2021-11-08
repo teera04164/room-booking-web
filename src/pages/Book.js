@@ -93,7 +93,7 @@ const Book = () => {
             await api.deleteBooking({ booking_id })
         } else {
             await api.saveBooking({
-                building_id,
+                building_id: selectedBuilding,
                 room_type_id,
                 room_id,
                 time_booking_id,

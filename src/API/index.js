@@ -8,7 +8,7 @@ axios.interceptors.request.use(
         const userInfo = localStorage.getItem("userInfo");
         if (userInfo) {
             let obj = JSON.parse(userInfo)
-            config.headers['Authorization'] = `bearer ${obj.token?.accessToken}`
+            config.headers['Authorizationd'] = `Bearer ${obj.token?.accessToken}`
         }
 
         return config;
@@ -18,46 +18,51 @@ axios.interceptors.request.use(
     }
 );
 
-// axios.interceptors.response.use(
-//     (response) => {
-//         return response;
-//     },
-//     function (error) {
-//         const originalRequest = error.config;
-//         let refreshToken = localStorage.getItem("refreshToken");
+axios.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    function (error) {
+        const originalRequest = error.config;
 
-//         if (refreshToken && error.response.status === 401 && !originalRequest._retry) {
-//             originalRequest._retry = true;
-//             return axios
-//                 .post(`${baseUrl}/auth/refresh_token`, { refreshToken: refreshToken })
-//                 .then((res) => {
-//                     if (res.status === 200) {
-//                         localStorage.setItem("accessToken", res.data.accessToken);
-//                         console.log("Access token refreshed!");
-//                         return axios(originalRequest);
-//                     }
-//                 });
-//         }
-//         if (error?.response?.data) {
-//             handle403(error)
-//         }
-//         return Promise.reject(error);
-//     }
-// );
+        const userInfo = localStorage.getItem("userInfo");
+        if (userInfo) {
+            let obj = JSON.parse(userInfo)
+            let refreshToken = obj.token.refreshToken
+            if (refreshToken && error.response?.status === 401 && !originalRequest._retry) {
+                originalRequest._retry = true;
+                return axios
+                    .post(`${baseUrl}/auth/refresh_token`, { refreshToken: refreshToken })
+                    .then((res) => {
+                        if (res.status === 200) {
+                            const { accessToken } = res.data
+                            localStorage.setItem("userInfo", JSON.stringify({ ...obj, token: { ...obj.token, accessToken } }));
+                            return axios(originalRequest);
+                        }
+                    });
+            }
+        }
+
+        if (error?.response?.data) {
+            handle403(error)
+        }
+        return Promise.reject(error);
+    }
+);
 
 
-// const handle403 = (error) => {
-//     const { RESULT_STATUS, RESULT_MESSAGE } = error.response.data
-//     toast.error(`${RESULT_STATUS} ${RESULT_MESSAGE}`, {
-//         position: "top-center",
-//         autoClose: 5000,
-//         hideProgressBar: false,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//         progress: undefined,
-//     });
-// }
+const handle403 = (error) => {
+    // const { RESULT_STATUS, RESULT_MESSAGE } = error.response.data
+    toast.error(`session expire please login again!!`, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
+}
 
 const api = {
     getListTimeBooking: async (param) => {
