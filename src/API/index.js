@@ -43,7 +43,7 @@ axios.interceptors.response.use(
             }
         }
 
-        if (error?.response?.data) {
+        if (error?.response?.status === 403) {
             handle403(error)
         }
         return Promise.reject(error);
