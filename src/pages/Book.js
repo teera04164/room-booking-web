@@ -43,15 +43,14 @@ const Book = () => {
 
     const initial = async () => {
         setLoading(true)
-        const building = await api.getListTBuilding()
-        const result = await api.getListTimeBooking()
+        const [building, timeBooking] = await Promise.all([api.getListTBuilding(), api.getListTimeBooking()])
         const booking = await api.getBooking({ ...building[0] })
         const optionBuilding = building.map((ele) => ({
             value: ele.building_id,
             label: ele.building_name,
         }))
         setSelectBuilding(building[0].building_id)
-        setTimeBookDefault(result)
+        setTimeBookDefault(timeBooking)
         setDataBooking(booking)
         setBuildingList(optionBuilding)
         setLoading(false)
