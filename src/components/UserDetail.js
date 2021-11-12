@@ -6,7 +6,7 @@ function UserDetail() {
     const { userInfo } = React.useContext(GlobalContext);
     return (
         <div>
-            <Grid container justifyContent="center" style={{ padding: '10px' }}>
+            <Grid container justifyContent='center' style={{ padding: '10px' }}>
                 <Grid item>
                     <div
                         style={{
@@ -17,11 +17,7 @@ function UserDetail() {
                             flexDirection: 'column',
                         }}
                     >
-                        <Grid
-                            container
-                            justifyContent="center"
-
-                        >
+                        <Grid container justifyContent='center'>
                             <Grid item>
                                 <span>ข้อมูลผู้ใช้</span>
                             </Grid>
@@ -37,10 +33,7 @@ function UserDetail() {
                                 </span>
                             </Grid>
                         </Grid>
-                        <Grid
-                            container
-                            style={{ marginTop: '15px', marginBottom: '15px' }}
-                        >
+                        <Grid container style={{ marginTop: '15px', marginBottom: '15px' }}>
                             <Grid item xs={4}>
                                 <span> ชั่วโมงคงเหลือ :</span>
                             </Grid>

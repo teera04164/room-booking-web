@@ -14,7 +14,7 @@ export default function SelectOption(props) {
     const { loading } = React.useContext(GlobalContext);
 
     return (
-        <Grid container justifyContent="center" style={{ padding: '10px' }}>
+        <Grid container justifyContent='center' style={{ padding: '10px' }}>
             <Grid item>
                 <div
                     style={{
@@ -24,7 +24,7 @@ export default function SelectOption(props) {
                         display: 'flex',
                     }}
                 >
-                    <Grid container spacing={2} alignItems="center">
+                    <Grid container spacing={2} alignItems='center'>
                         <Grid item xs={3}>
                             <span>อาคาร </span>
                         </Grid>
