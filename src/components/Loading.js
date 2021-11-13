@@ -11,8 +11,8 @@ export default function Loading() {
         <div>
             <Backdrop
                 sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }}
-                open={loading}
-                // onClick={handleClose}
+                open={false}
+            // onClick={handleClose}
             >
                 <CircularProgress color='inherit' />
             </Backdrop>

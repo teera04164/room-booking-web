@@ -15,6 +15,7 @@ import SelectOption from '../components/SelectOption'
 import DatePicker from '../components/DatePicker'
 import UserDetail from '../components/UserDetail'
 import dayjs from 'dayjs'
+import { dateToFomat } from '../utils'
 
 const useStyles = makeStyles({
     root: {
@@ -37,52 +38,66 @@ const Book = () => {
     const [buildingList, setBuildingList] = useState([])
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [selectedBuilding, setSelectBuilding] = useState('')
-    const [eventSocket, setEventSocket] = useState('')
 
     useEffect(() => {
         initial()
     }, [])
 
     useEffect(() => {
-        socket &&
-            socket.on(eventSocket, data => {
-                console.log('event ', eventSocket, data)
+        console.log('in socket change ', socket);
+        if (socket) {
+            socket.on('update-date', data => {
+                console.log('update-date ', data);
                 setDataBooking(data)
-                setLoading(false)
             })
-    }, [eventSocket])
+        }
+    }, [socket])
+
+    useEffect(() => {
+        console.log('on data booking change ', dataBooking);
+        return () => {
+
+        };
+    }, [dataBooking]);
 
     const initial = async () => {
         try {
+            console.log('in initial');
             setLoading(true)
             const [building, timeBooking] = await Promise.all([api.getListTBuilding(), api.getListTimeBooking()])
-            const selected_date = dayjs(new Date()).format('DD-MM-YYYY')
+            const selected_date = dateToFomat(new Date)
             const { building_id } = building[0]
-            const booking = await api.getBooking({ building_id, selected_date: new Date() })
+            const booking = await api.getBooking({ building_id, selected_date })
+            console.log("🚀 ~ file: Book.js ~ line 71 ~ initial ~ booking", booking)
             const optionBuilding = building.map(ele => ({
                 value: ele.building_id,
                 label: ele.building_name,
             }))
-            const event = `${building_id}-${selected_date}`
-            setEventSocket(event)
+            socket.emit('join_room', { building_id, selected_date })
+
             setSelectBuilding(building[0].building_id)
             setTimeBookDefault(timeBooking)
-            setDataBooking(booking)
+            setDataBooking([...booking])
             setBuildingList(optionBuilding)
             setLoading(false)
+            console.log('after initial');
         } catch (err) {
             setLoading(false)
         }
     }
 
     const handleChangeBuilding = async ({ value: buildId }) => {
+        const selected_date = dayjs(selectedDate).format('DD-MM-YYYY')
+        socket.emit('leve_room', { building_id: selectedBuilding, selected_date })
+        socket.emit('join_room', { building_id: buildId, selected_date })
         setSelectBuilding(buildId)
-        await getBooking(buildId, selectedDate)
+        // await getBooking(buildId, selected_date)
     }
 
     const handleChangDate = async date => {
         setSelectedDate(date)
-        await getBooking(selectedBuilding, date)
+        const selected_date = dateToFomat(date)
+        await getBooking(selectedBuilding, selected_date)
     }
 
     const getBooking = async (building_id, selected_date) => {
@@ -108,16 +123,16 @@ const Book = () => {
         if (isOwnBook) {
             await api.deleteBooking({ booking_id })
         } else {
+            const selected_date = dateToFomat(selectedDate)
             await api.saveBooking({
                 building_id: selectedBuilding,
                 room_type_id,
                 room_id,
                 time_booking_id,
                 user_id: userInfo._id,
-                selected_date: selectedDate,
+                selected_date,
             })
         }
-        // await getBooking(selectedBuilding, selectedDate)
     }
 
     return (
@@ -208,13 +223,12 @@ const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo
                                         }
                                     }}
                                     align='center'
-                                    className={`${
-                                        isBooked
-                                            ? isOwnBook
-                                                ? 'status_hold_own'
-                                                : 'status_hold_auther'
-                                            : 'status_hold_free'
-                                    }`}
+                                    className={`${isBooked
+                                        ? isOwnBook
+                                            ? 'status_hold_own'
+                                            : 'status_hold_auther'
+                                        : 'status_hold_free'
+                                        }`}
                                 >
                                     {isBooked ? (
                                         isOwnBook ? (

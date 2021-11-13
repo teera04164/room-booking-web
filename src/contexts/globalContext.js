@@ -14,10 +14,12 @@ const GlobalProvider = props => {
     }, []);
 
     const initial = () => {
+        setLoading(true)
         const socket = socketIOClient('http://localhost:5002');
         socket.on('connect', () => {
             console.log('connect ', socket.id); // x8WIv7-mJelg7on_ALbx
             setSocketIO(socket);
+            setLoading(false)
         });
 
         socket.on('hi', arg => {
