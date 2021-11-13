@@ -32,17 +32,17 @@ const menus = [
     // },
 ];
 function Navbar() {
-    const [activeMenu, setActiveMenu] = React.useState(
-        window.location.pathname
-    );
+    const [activeMenu, setActiveMenu] = React.useState(window.location.pathname);
     const history = useHistory();
-    const { userInfo } = React.useContext(GlobalContext)
+    const { userInfo } = React.useContext(GlobalContext);
 
-    const onClickMenu = async (path) => {
+    const onClickMenu = async path => {
         if (path === '/login') {
-            const { token: { refreshToken } } = userInfo
-            await api.logOut({ refreshToken })
-            localStorage.clear()
+            const {
+                token: { refreshToken },
+            } = userInfo;
+            await api.logOut({ refreshToken });
+            localStorage.clear();
         }
         history.push(path);
         setActiveMenu(path);
@@ -51,15 +51,15 @@ function Navbar() {
         <div>
             <Grid
                 container
-                justifyContent="space-between"
+                justifyContent='space-between'
                 style={{
                     height: '70px',
                     backgroundColor: 'white',
                     boxShadow: '0 4px 20px 0 rgba(0, 0, 0, .05)',
                 }}
             >
-                <ul className="menu">
-                    {menus.map((ele) => {
+                <ul className='menu'>
+                    {menus.map(ele => {
                         const { label, icon: Icon, path } = ele;
                         return (
                             <li
@@ -73,17 +73,13 @@ function Navbar() {
                         );
                     })}
                 </ul>
-                <ul className="menu">
+                <ul className='menu'>
                     <li>
                         <span style={{ marginRight: '5px', cursor: 'default' }}>
-                            <span style={{ fontSize: 'small' }}>
-                                ยินดีต้องรับ..
-                            </span>
+                            <span style={{ fontSize: 'small' }}>ยินดีต้องรับ..</span>
                             <span style={{ fontWeight: 'bold', color: '#001685' }}>{' ' + userInfo.username}</span>
                         </span>
-                        <LogoutOutlinedIcon
-                            onClick={() => onClickMenu('/login')}
-                        />
+                        <LogoutOutlinedIcon onClick={() => onClickMenu('/login')} />
                     </li>
                 </ul>
             </Grid>

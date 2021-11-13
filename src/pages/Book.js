@@ -14,6 +14,8 @@ import DialogConfirm from '../components/DialogConfirm'
 import SelectOption from '../components/SelectOption'
 import DatePicker from '../components/DatePicker'
 import UserDetail from '../components/UserDetail'
+import dayjs from 'dayjs'
+import { dateToFomat } from '../utils'
 
 const useStyles = makeStyles({
     root: {
@@ -29,9 +31,9 @@ const useStyles = makeStyles({
 
 const Book = () => {
     const classes = useStyles()
-    const { setLoading, userInfo } = useContext(GlobalContext)
+    const { setLoading, userInfo, socket } = useContext(GlobalContext)
     const [dataBooking, setDataBooking] = useState([])
-    const [eventDialog, setEventDialog] = useState({ open: false, data: {}, })
+    const [eventDialog, setEventDialog] = useState({ open: false, data: {} })
     const [timeBookDefault, setTimeBookDefault] = useState([])
     const [buildingList, setBuildingList] = useState([])
     const [selectedDate, setSelectedDate] = useState(new Date())
@@ -41,45 +43,68 @@ const Book = () => {
         initial()
     }, [])
 
+    useEffect(() => {
+        console.log('in socket change ', socket);
+        if (socket) {
+            console.log('in have socket');
+            socket.on('update-date', data => {
+                console.log('update-date ', data);
+                setDataBooking(data)
+                setLoading(false)
+            })
+        }
+    }, [socket])
+
+    useEffect(() => {
+        console.log('on data booking change ', dataBooking);
+        if (selectedBuilding && selectedDate) {
+            setLoading(true)
+            const selected_date = dateToFomat(selectedDate)
+            socket.emit('join_room', { building_id: selectedBuilding, selected_date })
+        }
+        return () => {
+
+        };
+    }, [selectedBuilding, selectedDate]);
+
     const initial = async () => {
         try {
+            console.log('in initial');
             setLoading(true)
             const [building, timeBooking] = await Promise.all([api.getListTBuilding(), api.getListTimeBooking()])
-            const booking = await api.getBooking({ ...building[0] })
-            const optionBuilding = building.map((ele) => ({
+            const { building_id } = building[0]
+            const optionBuilding = building.map(ele => ({
                 value: ele.building_id,
                 label: ele.building_name,
             }))
-            setSelectBuilding(building[0].building_id)
+
+            setSelectBuilding(building_id)
             setTimeBookDefault(timeBooking)
-            setDataBooking(booking)
             setBuildingList(optionBuilding)
             setLoading(false)
+            console.log('after initial');
         } catch (err) {
             setLoading(false)
         }
     }
 
     const handleChangeBuilding = async ({ value: buildId }) => {
+        leveRoom()
         setSelectBuilding(buildId)
-        await getBooking(buildId, selectedDate)
     }
 
-    const handleChangDate = async (date) => {
+    const handleChangDate = async date => {
+        leveRoom()
         setSelectedDate(date)
-        await getBooking(selectedBuilding, date)
     }
 
-    const getBooking = async (building_id, selected_date) => {
-        setLoading(true)
-        const booking = await api.getBooking({ building_id, selected_date })
-        setDataBooking(booking)
-        setLoading(false)
+    const leveRoom = () => {
+        const selected_date = dateToFomat(selectedDate)
+        socket.emit('leve_room', { building_id: selectedBuilding, selected_date })
     }
 
 
-
-    const bookClick = (data) => {
+    const bookClick = data => {
         const { isOwnBook } = data
         let label = 'ยืนยันการจอง'
         if (isOwnBook) {
@@ -88,51 +113,40 @@ const Book = () => {
         setEventDialog({ open: true, label, data })
     }
 
-    const handleOk = async (data) => {
+    const handleOk = async data => {
         setEventDialog(false)
         setLoading(true)
-        const { room_id, time_booking_id, room_type_id, building_id, isOwnBook, booking_id, } = data
+        const { room_id, time_booking_id, room_type_id, building_id, isOwnBook, booking_id } = data
         if (isOwnBook) {
             await api.deleteBooking({ booking_id })
         } else {
+            const selected_date = dateToFomat(selectedDate)
             await api.saveBooking({
                 building_id: selectedBuilding,
                 room_type_id,
                 room_id,
                 time_booking_id,
                 user_id: userInfo._id,
-                selected_date: selectedDate,
+                selected_date,
             })
         }
-        await getBooking(selectedBuilding, selectedDate)
     }
-
+    console.log('render');
     return (
         <div className={classes.root} style={{ padding: '20px' }}>
-            <DialogConfirm
-                eventDialog={eventDialog}
-                onClose={() => setEventDialog(false)}
-                onOk={handleOk}
-            />
-            <DatePicker
-                onChange={handleChangDate}
-            />
-            <SelectOption
-                onChange={handleChangeBuilding}
-                options={buildingList}
-            />
+            <DialogConfirm eventDialog={eventDialog} onClose={() => setEventDialog(false)} onOk={handleOk} />
+            <DatePicker onChange={handleChangDate} />
+            <SelectOption onChange={handleChangeBuilding} options={buildingList} />
             <UserDetail />
 
-            {dataBooking.map((room) => {
+            {dataBooking.map(room => {
                 const { rooms, room_type_name, _id: building_id } = room
                 return (
                     <div key={building_id}>
                         <HeaderRoomType room_type_name={room_type_name} />
                         <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }} size="small">
-                                <HeaderTable
-                                    timeBookDefault={timeBookDefault}
-                                />
+                            <Table sx={{ minWidth: 650 }} size='small'>
+                                <HeaderTable timeBookDefault={timeBookDefault} />
                                 <BodyTable
                                     userInfo={userInfo}
                                     all_room={rooms}
@@ -156,8 +170,8 @@ const HeaderTable = ({ timeBookDefault }) => {
         <TableHead>
             <TableRow>
                 <TableCell>ห้อง/เวลา</TableCell>
-                {timeBookDefault.map((ele) => (
-                    <TableCell key={`default-book-${ele._id}`} align="center">
+                {timeBookDefault.map(ele => (
+                    <TableCell key={`default-book-${ele._id}`} align='center'>
                         {ele.time_booking_name}
                     </TableCell>
                 ))}
@@ -166,19 +180,19 @@ const HeaderTable = ({ timeBookDefault }) => {
     )
 }
 
-const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo, }) => {
+const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo }) => {
     return (
         <TableBody>
-            {all_room.map((ele) => {
+            {all_room.map(ele => {
                 const { room_name, _id: room_id, booking, room_type_id } = ele
                 return (
                     <TableRow key={`body-table-${room_id}`}>
-                        <TableCell align="center" component="th" scope="row">
+                        <TableCell align='center' component='th' scope='row'>
                             {room_name}
                         </TableCell>
-                        {timeBookDefault.map((echTime) => {
-                            const { _id: time_booking_id, time_booking_name: time_label, } = echTime
-                            const foundBooked = booking.find((eachBook) => eachBook.time_booking_id == time_booking_id)
+                        {timeBookDefault.map(echTime => {
+                            const { _id: time_booking_id, time_booking_name: time_label } = echTime
+                            const foundBooked = booking.find(eachBook => eachBook.time_booking_id == time_booking_id)
                             let isBooked = false
                             let isOwnBook = false
                             if (foundBooked) {
@@ -205,7 +219,7 @@ const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo
                                             })
                                         }
                                     }}
-                                    align="center"
+                                    align='center'
                                     className={`${isBooked
                                         ? isOwnBook
                                             ? 'status_hold_own'
@@ -216,14 +230,10 @@ const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo
                                     {isBooked ? (
                                         isOwnBook ? (
                                             <>
-                                                <b style={{ color: '#5e1bff', }} >
-                                                    <p>
-                                                        {userInfo.user_code}
-                                                    </p>
+                                                <b style={{ color: '#5e1bff' }}>
+                                                    <p>{userInfo.user_code}</p>
                                                 </b>
-                                                <p style={{ color: '#5e1bff' }}>
-                                                    ยกเลิก
-                                                </p>
+                                                <p style={{ color: '#5e1bff' }}>ยกเลิก</p>
                                                 <p>{room_name}</p>
                                                 <p>{time_label}</p>
                                             </>

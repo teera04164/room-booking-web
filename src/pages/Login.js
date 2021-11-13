@@ -22,7 +22,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import Chip from '@mui/material/Chip'
 import Stack from '@mui/material/Stack'
 
-const wait = (timeToDelay) => new Promise((resolve) => setTimeout(resolve, timeToDelay))
+const wait = timeToDelay => new Promise(resolve => setTimeout(resolve, timeToDelay))
 
 const CssInput = styled(Input)({
     '& .MuiInputBase-input': {
@@ -71,7 +71,7 @@ function Login() {
         }
     }
 
-    const handleChange = (prop) => (event) => {
+    const handleChange = prop => event => {
         setValues({ ...values, [prop]: event.target.value })
     }
 
@@ -82,26 +82,34 @@ function Login() {
         })
     }
 
-    const handleMouseDownPassword = (event) => {
+    const handleMouseDownPassword = event => {
         event.preventDefault()
     }
     return (
         <div>
             <Grid
                 container
-                direction="row"
-                justifyContent="center"
-                alignItems="center"
-                textAlign="center"
+                direction='row'
+                justifyContent='center'
+                alignItems='center'
+                textAlign='center'
                 style={{ height: '85vh' }}
             >
-                <Grid item xs={10} sm={8} md={6} lg={6} textAlign="center" className="login-card">
-                    <img src="lock.png" style={{ width: '100px' }} />
-                    <Typography variant="h5" gutterBottom component="div" style={{ marginBottom: '50px' }}>
+                <Grid item xs={10} sm={8} md={6} lg={6} textAlign='center' className='login-card'>
+                    <img src='lock.png' style={{ width: '100px' }} />
+                    <Typography variant='h5' gutterBottom component='div' style={{ marginBottom: '50px' }}>
                         ระบบจองห้องสำนักงาน
                     </Typography>
-                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', }} >
-                        <div style={{ display: 'flex', textAlign: 'left', flexDirection: 'column', width: '100%', maxWidth: '400px', }} >
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                textAlign: 'left',
+                                flexDirection: 'column',
+                                width: '100%',
+                                maxWidth: '400px',
+                            }}
+                        >
                             <Grid item xs={12} style={{ fontSize: '1rem', color: '#5c5c5c', fontWeight: '500' }}>
                                 บัญชีผู้ใช้เครือข่ายนนทรี
                             </Grid>
@@ -111,7 +119,7 @@ function Login() {
                                     onChange={handleChange('username')}
                                     style={{ width: '100%', marginTop: '5px' }}
                                     disableUnderline
-                                    placeholder="เช่น b63xxxxxxxx หรือ regxxx"
+                                    placeholder='เช่น b63xxxxxxxx หรือ regxxx'
                                 />
                             </Grid>
                             <Grid
@@ -128,48 +136,54 @@ function Login() {
                             </Grid>
                             <Grid item xs={12}>
                                 <InputBase
-                                    className="input-password"
+                                    className='input-password'
                                     style={{ width: '100%', marginTop: '5px' }}
                                     disableUnderline
-                                    placeholder="รหัสผ่านบัญชีผู้ใช้เครือข่ายนนทรี"
+                                    placeholder='รหัสผ่านบัญชีผู้ใช้เครือข่ายนนทรี'
                                     type={values.showPassword ? 'text' : 'password'}
                                     value={values.password}
                                     onChange={handleChange('password')}
                                     endAdornment={
-                                        <InputAdornment position="end">
+                                        <InputAdornment position='end'>
                                             <IconButton
-                                                aria-label="toggle password visibility"
+                                                aria-label='toggle password visibility'
                                                 onClick={handleClickShowPassword}
                                                 onMouseDown={handleMouseDownPassword}
-                                                edge="end"
+                                                edge='end'
                                             >
                                                 {values.showPassword ? <VisibilityOff /> : <Visibility />}
                                             </IconButton>
                                         </InputAdornment>
                                     }
-                                    label="Password"
+                                    label='Password'
                                 />
                             </Grid>
 
-                            <Stack direction="row" spacing={1} style={{ marginTop: '10px' }}>
+                            <Stack direction='row' spacing={1} style={{ marginTop: '10px' }}>
                                 <Chip
-                                    label="demo1"
-                                    variant="outlined"
-                                    onClick={() => { setValues((prev) => ({ ...prev, username: 'demo1', })) }}
+                                    label='demo1'
+                                    variant='outlined'
+                                    onClick={() => {
+                                        setValues(prev => ({ ...prev, username: 'demo1' }))
+                                    }}
                                 />
                                 <Chip
-                                    label="demo2"
-                                    variant="outlined"
-                                    onClick={() => { setValues((prev) => ({ ...prev, username: 'demo2', })) }}
+                                    label='demo2'
+                                    variant='outlined'
+                                    onClick={() => {
+                                        setValues(prev => ({ ...prev, username: 'demo2' }))
+                                    }}
                                 />
                                 <Chip
-                                    label="admin"
-                                    variant="outlined"
-                                    onClick={() => { setValues((prev) => ({ ...prev, username: 'admin', })) }}
+                                    label='admin'
+                                    variant='outlined'
+                                    onClick={() => {
+                                        setValues(prev => ({ ...prev, username: 'admin' }))
+                                    }}
                                 />
                             </Stack>
 
-                            <Button className="btn-login" variant="contained" onClick={onClickLogin}>
+                            <Button className='btn-login' variant='contained' onClick={onClickLogin}>
                                 เข้าสู่ระบบ
                             </Button>
                         </div>
