@@ -6,7 +6,6 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
-import { makeStyles } from '@mui/styles'
 
 import api from '../API'
 import { GlobalContext } from '../contexts/globalContext'
@@ -14,23 +13,9 @@ import DialogConfirm from '../components/DialogConfirm'
 import SelectOption from '../components/SelectOption'
 import DatePicker from '../components/DatePicker'
 import UserDetail from '../components/UserDetail'
-import dayjs from 'dayjs'
 import { dateToFomat } from '../utils'
 
-const useStyles = makeStyles({
-    root: {
-        padding: '20px',
-    },
-    table: {
-        minWidth: 650,
-        '& .MuiTableCell-root': {
-            borderLeft: '1px solid rgba(224, 224, 224, 1)',
-        },
-    },
-})
-
 const Book = () => {
-    const classes = useStyles()
     const { setLoading, userInfo, socket } = useContext(GlobalContext)
     const [dataBooking, setDataBooking] = useState([])
     const [eventDialog, setEventDialog] = useState({ open: false, data: {} })
@@ -44,11 +29,8 @@ const Book = () => {
     }, [])
 
     useEffect(() => {
-        console.log('in socket change ', socket);
         if (socket) {
-            console.log('in have socket');
             socket.on('update-date', data => {
-                console.log('update-date ', data);
                 setDataBooking(data)
                 setLoading(false)
             })
@@ -56,7 +38,6 @@ const Book = () => {
     }, [socket])
 
     useEffect(() => {
-        console.log('on data booking change ', dataBooking);
         if (selectedBuilding && selectedDate) {
             setLoading(true)
             const selected_date = dateToFomat(selectedDate)
@@ -69,7 +50,6 @@ const Book = () => {
 
     const initial = async () => {
         try {
-            console.log('in initial');
             setLoading(true)
             const [building, timeBooking] = await Promise.all([api.getListTBuilding(), api.getListTimeBooking()])
             const { building_id } = building[0]
@@ -82,7 +62,6 @@ const Book = () => {
             setTimeBookDefault(timeBooking)
             setBuildingList(optionBuilding)
             setLoading(false)
-            console.log('after initial');
         } catch (err) {
             setLoading(false)
         }
@@ -103,7 +82,6 @@ const Book = () => {
         socket.emit('leve_room', { building_id: selectedBuilding, selected_date })
     }
 
-
     const bookClick = data => {
         const { isOwnBook } = data
         let label = 'ยืนยันการจอง'
@@ -116,7 +94,7 @@ const Book = () => {
     const handleOk = async data => {
         setEventDialog(false)
         setLoading(true)
-        const { room_id, time_booking_id, room_type_id, building_id, isOwnBook, booking_id } = data
+        const { room_id, time_booking_id, room_type_id, isOwnBook, booking_id } = data
         if (isOwnBook) {
             await api.deleteBooking({ booking_id })
         } else {
@@ -131,9 +109,8 @@ const Book = () => {
             })
         }
     }
-    console.log('render');
     return (
-        <div className={classes.root} style={{ padding: '20px' }}>
+        <div style={{ padding: '20px' }}>
             <DialogConfirm eventDialog={eventDialog} onClose={() => setEventDialog(false)} onOk={handleOk} />
             <DatePicker onChange={handleChangDate} />
             <SelectOption onChange={handleChangeBuilding} options={buildingList} />

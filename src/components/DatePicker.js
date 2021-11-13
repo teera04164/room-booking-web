@@ -3,7 +3,7 @@ import DatePick from 'react-datepicker';
 import { Grid } from '@mui/material';
 
 function DatePicker(props) {
-    const { onChange = () => {} } = props;
+    const { onChange = () => { } } = props;
     const [startDate, setStartDate] = React.useState(new Date());
 
     const hadleChangeDate = date => {
@@ -31,6 +31,7 @@ function DatePicker(props) {
                                 onChange={date => hadleChangeDate(date)}
                                 minDate={new Date()}
                                 maxDate={new Date().setDate(new Date().getDate() + 7)}
+                                dateFormat="dd/MM/yyyy"
                                 showDisabledMonthNavigation
                             />
                         </Grid>
