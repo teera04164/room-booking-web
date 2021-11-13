@@ -1,6 +1,7 @@
 import socketIOClient from 'socket.io-client';
 import React, { useEffect, useState, createContext } from 'react';
 import { useHistory } from 'react-router-dom';
+import { baseUrl } from '../API';
 
 const GlobalContext = createContext();
 const GlobalProvider = props => {
@@ -15,7 +16,7 @@ const GlobalProvider = props => {
 
     const initial = () => {
         setLoading(true)
-        const socket = socketIOClient('http://localhost:5002');
+        const socket = socketIOClient(baseUrl);
         socket.on('connect', () => {
             console.log('connect ', socket.id); // x8WIv7-mJelg7on_ALbx
             setSocketIO(socket);

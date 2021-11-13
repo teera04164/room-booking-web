@@ -3,6 +3,10 @@ import { toast } from 'react-toastify';
 
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5002' : process.env.REACT_APP_BACKEND;
 
+export {
+    baseUrl
+}
+
 axios.interceptors.request.use(
     (config) => {
         const userInfo = localStorage.getItem("userInfo");
