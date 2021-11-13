@@ -46,38 +46,40 @@ const Book = () => {
     useEffect(() => {
         console.log('in socket change ', socket);
         if (socket) {
+            console.log('in have socket');
             socket.on('update-date', data => {
                 console.log('update-date ', data);
                 setDataBooking(data)
+                setLoading(false)
             })
         }
     }, [socket])
 
     useEffect(() => {
         console.log('on data booking change ', dataBooking);
+        if (selectedBuilding && selectedDate) {
+            setLoading(true)
+            const selected_date = dateToFomat(selectedDate)
+            socket.emit('join_room', { building_id: selectedBuilding, selected_date })
+        }
         return () => {
 
         };
-    }, [dataBooking]);
+    }, [selectedBuilding, selectedDate]);
 
     const initial = async () => {
         try {
             console.log('in initial');
             setLoading(true)
             const [building, timeBooking] = await Promise.all([api.getListTBuilding(), api.getListTimeBooking()])
-            const selected_date = dateToFomat(new Date)
             const { building_id } = building[0]
-            const booking = await api.getBooking({ building_id, selected_date })
-            console.log("🚀 ~ file: Book.js ~ line 71 ~ initial ~ booking", booking)
             const optionBuilding = building.map(ele => ({
                 value: ele.building_id,
                 label: ele.building_name,
             }))
-            socket.emit('join_room', { building_id, selected_date })
 
-            setSelectBuilding(building[0].building_id)
+            setSelectBuilding(building_id)
             setTimeBookDefault(timeBooking)
-            setDataBooking([...booking])
             setBuildingList(optionBuilding)
             setLoading(false)
             console.log('after initial');
@@ -87,25 +89,20 @@ const Book = () => {
     }
 
     const handleChangeBuilding = async ({ value: buildId }) => {
-        const selected_date = dayjs(selectedDate).format('DD-MM-YYYY')
-        socket.emit('leve_room', { building_id: selectedBuilding, selected_date })
-        socket.emit('join_room', { building_id: buildId, selected_date })
+        leveRoom()
         setSelectBuilding(buildId)
-        // await getBooking(buildId, selected_date)
     }
 
     const handleChangDate = async date => {
+        leveRoom()
         setSelectedDate(date)
-        const selected_date = dateToFomat(date)
-        await getBooking(selectedBuilding, selected_date)
     }
 
-    const getBooking = async (building_id, selected_date) => {
-        setLoading(true)
-        const booking = await api.getBooking({ building_id, selected_date })
-        setDataBooking(booking)
-        setLoading(false)
+    const leveRoom = () => {
+        const selected_date = dateToFomat(selectedDate)
+        socket.emit('leve_room', { building_id: selectedBuilding, selected_date })
     }
+
 
     const bookClick = data => {
         const { isOwnBook } = data
@@ -134,7 +131,7 @@ const Book = () => {
             })
         }
     }
-
+    console.log('render');
     return (
         <div className={classes.root} style={{ padding: '20px' }}>
             <DialogConfirm eventDialog={eventDialog} onClose={() => setEventDialog(false)} onOk={handleOk} />
