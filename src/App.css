@@ -159,3 +159,8 @@ td.MuiTableCell-body.status_hold_auther p:first-child {
     width: 100%;
     padding-left: 5px;
 }
+
+td.MuiTableCell-body.status_hold_same_time {
+    background-color: #f1f1f1;
+    color: #aaaaaa;
+}

@@ -7,12 +7,13 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 
-import api from '../API'
 import { GlobalContext } from '../contexts/globalContext'
 import DialogConfirm from '../components/DialogConfirm'
 import SelectOption from '../components/SelectOption'
 import DatePicker from '../components/DatePicker'
 import UserDetail from '../components/UserDetail'
+
+import api from '../API'
 import { dateToFomat } from '../utils'
 
 const Book = () => {
@@ -109,6 +110,9 @@ const Book = () => {
             })
         }
     }
+
+    let timeBooked = []
+
     return (
         <div style={{ padding: '20px' }}>
             <DialogConfirm eventDialog={eventDialog} onClose={() => setEventDialog(false)} onOk={handleOk} />
@@ -130,6 +134,7 @@ const Book = () => {
                                     timeBookDefault={timeBookDefault}
                                     building_id={building_id}
                                     bookClick={bookClick}
+                                    timeBooked={timeBooked}
                                 />
                             </Table>
                         </TableContainer>
@@ -157,7 +162,7 @@ const HeaderTable = ({ timeBookDefault }) => {
     )
 }
 
-const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo }) => {
+const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo, timeBooked }) => {
     return (
         <TableBody>
             {all_room.map(ele => {
@@ -176,14 +181,17 @@ const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo
                                 isBooked = true
                                 if (foundBooked.user_id === userInfo._id) {
                                     isOwnBook = true
+                                    timeBooked.push(time_booking_id)
                                 }
                             }
+
+                            let isSameTimeBooking = timeBooked.includes(time_booking_id)
 
                             return (
                                 <TableCell
                                     key={`booking-${room_id}-${time_booking_id}`}
                                     onClick={() => {
-                                        if (!foundBooked || isOwnBook) {
+                                        if ((!foundBooked && !isSameTimeBooking) || isOwnBook) {
                                             bookClick({
                                                 room_name,
                                                 room_id,
@@ -201,7 +209,10 @@ const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo
                                         ? isOwnBook
                                             ? 'status_hold_own'
                                             : 'status_hold_auther'
-                                        : 'status_hold_free'
+                                        :
+                                        isSameTimeBooking
+                                            ? 'status_hold_same_time'
+                                            : 'status_hold_free'
                                         }`}
                                 >
                                     {isBooked ? (
@@ -222,11 +233,14 @@ const BodyTable = ({ timeBookDefault, all_room, bookClick, building_id, userInfo
                                             </>
                                         )
                                     ) : (
-                                        <>
+                                        isSameTimeBooking ? (<>
                                             <p>ห้องว่าง</p>
                                             <p>{room_name}</p>
                                             <p>{time_label}</p>
-                                        </>
+                                        </>) : (<> <p>ห้องว่าง</p>
+                                            <p>{room_name}</p>
+                                            <p>{time_label}</p></>)
+
                                     )}
                                 </TableCell>
                             )
