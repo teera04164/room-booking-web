@@ -96,7 +96,7 @@ function Login() {
                 style={{ height: '85vh' }}
             >
                 <Grid item xs={10} sm={8} md={6} lg={6} textAlign='center' className='login-card'>
-                    <img src='logo.png' style={{ width: '300px' }} />
+                    <img src='logo.gif' style={{ width: '300px' }} />
                     <Typography variant='h5' gutterBottom component='div' style={{ marginBottom: '50px', marginTop: '20px' }}>
                         ระบบจองห้องประชุม
                     </Typography>
@@ -111,7 +111,7 @@ function Login() {
                             }}
                         >
                             <Grid item xs={12} style={{ fontSize: '1rem', color: '#5c5c5c', fontWeight: '500' }}>
-                                บัญชีผู้ใช้เครือข่ายนนทรี
+                                username
                             </Grid>
                             <Grid item xs={12}>
                                 <CssInput
@@ -132,7 +132,7 @@ function Login() {
                                     marginTop: '25px',
                                 }}
                             >
-                                รหัสผ่าน
+                                password
                             </Grid>
                             <Grid item xs={12}>
                                 <InputBase
