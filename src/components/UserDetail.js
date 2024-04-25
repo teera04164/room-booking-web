@@ -34,12 +34,12 @@ function UserDetail() {
                             </Grid>
                         </Grid>
                         <Grid container style={{ marginTop: '15px', marginBottom: '15px' }}>
-                            <Grid item xs={4}>
+                            {/* <Grid item xs={4}>
                                 <span> ชั่วโมงคงเหลือ :</span>
                             </Grid>
                             <Grid item>
                                 <span>6</span>
-                            </Grid>
+                            </Grid> */}
                         </Grid>
                     </div>
                 </Grid>
