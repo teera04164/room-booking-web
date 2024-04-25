@@ -15,16 +15,16 @@ const menus = [
         icon: AssignmentOutlinedIcon,
         path: '/book',
     },
-    {
-        label: 'รายการจอง',
-        icon: BeenhereOutlinedIcon,
-        path: '/user',
-    },
-    {
-        label: 'วิธีการใช้งาน',
-        icon: BookOutlinedIcon,
-        path: '/about',
-    },
+    // {
+    //     label: 'รายการจอง',
+    //     icon: BeenhereOutlinedIcon,
+    //     path: '/user',
+    // },
+    // {
+    //     label: 'วิธีการใช้งาน',
+    //     icon: BookOutlinedIcon,
+    //     path: '/about',
+    // },
     // {
     //     label: 'ออกจากระบบ',
     //     icon: LogoutOutlinedIcon,

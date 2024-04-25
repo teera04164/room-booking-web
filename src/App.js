@@ -41,7 +41,7 @@ function App() {
                             </Route>
                             <Route path='/'>
                                 <Navbar />
-                                <Home />
+                                <Book />
                             </Route>
                         </Switch>
                     </div>

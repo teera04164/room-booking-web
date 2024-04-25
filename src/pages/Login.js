@@ -96,9 +96,9 @@ function Login() {
                 style={{ height: '85vh' }}
             >
                 <Grid item xs={10} sm={8} md={6} lg={6} textAlign='center' className='login-card'>
-                    <img src='lock.png' style={{ width: '100px' }} />
-                    <Typography variant='h5' gutterBottom component='div' style={{ marginBottom: '50px' }}>
-                        ระบบจองห้องสำนักงาน
+                    <img src='logo.png' style={{ width: '300px' }} />
+                    <Typography variant='h5' gutterBottom component='div' style={{ marginBottom: '50px', marginTop: '20px' }}>
+                        ระบบจองห้องประชุม
                     </Typography>
                     <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                         <div
